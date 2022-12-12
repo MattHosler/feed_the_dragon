@@ -74,12 +74,43 @@ coin_rect.y = random.randint(64, WINDOW_HEIGHT - 32)
 
 
 #The main game loop
+pygame.mixer.music.play(-1, 0.0)
 running = True
 while running:
     #Check to see if user wants to quit
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+    
+    #Check to see if user wants to move
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_UP] and player_rect.top > 64:
+        player_rect.y -= PLAYER_VELOCITY
+    if keys[pygame.K_DOWN] and player_rect.top < WINDOW_HEIGHT:
+        player_rect.y += PLAYER_VELOCITY
+    
+    #Move the coin
+    if coin_rect.x < 0:
+        #Player missed coin
+        player_lives -= 1
+        miss_sound.play()
+        coin_rect.x = WINDOW_WIDTH + BUFFER_DISTANCE
+        coin_rect.y = random.randint(64, WINDOW_HEIGHT - 32)
+    else:
+        #Move the coin
+        coin_rect.x -= coin_velocity
+    
+    #Check for collisions
+    if player_rect.colliderect(coin_rect):
+        score += 1
+        coin_sound.play()
+        coin_velocity += COIN_ACCELERATION
+        coin_rect.x = WINDOW_WIDTH + BUFFER_DISTANCE
+        coin_rect.y = random.randint(64, WINDOW_HEIGHT - 32)
+
+    #Update Hud
+    score_text = font.render("Score: " + str(score), True, GREEN, DARKGREEN)
+    lives_text = font.render("Lives: " + str(player_lives), True, GREEN, DARKGREEN)
     #Fill the display
     display_surface.fill(BLACK)
 
@@ -95,6 +126,6 @@ while running:
     #Update display and tick the clock
     pygame.display.update()
     clock.tick(FPS)
-    
+
 #End the game
 pygame.quit()

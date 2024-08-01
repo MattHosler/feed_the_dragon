@@ -1,4 +1,4 @@
-import pygame, rando
+import pygame, random
 
 #initialize pygame
 pygame.init()
